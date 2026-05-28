@@ -1,9 +1,12 @@
-"""A thin, dependency-light client for the common SMM panel API (v2).
+"""A thin, dependency-light client for the NLO SMM panel API (v2).
 
-Almost every SMM panel exposes the same HTTP endpoint: a single URL that
-accepts an ``action`` plus your API ``key`` as form fields and replies with
-JSON. This module wraps that contract so you can place and track orders from
-Python instead of hand-building POST requests.
+It follows the official specification published at https://nlosmm.com/api:
+a single HTTP endpoint that accepts your API ``key`` plus an ``action`` as
+POST form fields and replies with JSON. The same contract is shared by most
+SMM panels, so this client works against any v2-compatible provider.
+
+You need an account and an API key first — register at
+https://nlosmm.com/signup and copy the key from your account's API page.
 """
 
 from __future__ import annotations
@@ -14,17 +17,18 @@ import requests
 
 from .exceptions import SMMPanelAPIError, SMMPanelError
 
-#: Default endpoint. NLO SMM exposes the standard v2 API at this URL.
+#: Official NLO SMM API endpoint (see https://nlosmm.com/api).
 DEFAULT_API_URL = "https://nlosmm.com/api/v2"
 
 
 class SMMPanelClient:
-    """Client for an SMM panel that implements the standard v2 API.
+    """Client for the NLO SMM panel API v2 (https://nlosmm.com/api).
 
     Args:
-        api_key: Your panel API key (found in the panel's account/API page).
-        api_url: The panel's API endpoint. Defaults to NLO SMM's endpoint,
-            but any provider using the same ``key``/``action`` contract works.
+        api_key: Your API key. Register at https://nlosmm.com/signup, then
+            copy it from your account's API page.
+        api_url: The panel's API endpoint. Defaults to NLO SMM's endpoint;
+            any provider using the same ``key``/``action`` contract works.
         session: An optional pre-configured :class:`requests.Session`.
         timeout: Per-request timeout in seconds.
     """
@@ -38,7 +42,10 @@ class SMMPanelClient:
         timeout: float = 30,
     ):
         if not api_key:
-            raise ValueError("api_key is required")
+            raise ValueError(
+                "api_key is required — register at https://nlosmm.com/signup "
+                "and copy your key from the account API page"
+            )
         self.api_key = api_key
         self.api_url = api_url.rstrip("/")
         self.timeout = timeout
@@ -70,13 +77,17 @@ class SMMPanelClient:
     # -- account -----------------------------------------------------------
 
     def balance(self) -> dict:
-        """Return the account balance and currency."""
+        """Return the account ``balance`` and ``currency`` (action ``balance``)."""
         return self._post("balance")
 
     # -- catalog -----------------------------------------------------------
 
     def services(self) -> list:
-        """Return the full service list (id, name, type, rate, min, max)."""
+        """Return the service list (action ``services``).
+
+        Each item exposes ``service``, ``name``, ``type``, ``category``,
+        ``rate``, ``min``, ``max`` and ``refill``.
+        """
         return self._post("services")
 
     # -- orders ------------------------------------------------------------
@@ -90,14 +101,28 @@ class SMMPanelClient:
         runs: int | None = None,
         interval: int | None = None,
         comments: str | None = None,
+        answer_number: str | None = None,
+        username: str | None = None,
+        min: int | None = None,
+        max: int | None = None,
+        posts: int | None = None,
+        delay: int | None = None,
+        expiry: str | None = None,
         **extra: Any,
     ) -> dict:
-        """Create an order.
+        """Create an order (action ``add``). Returns ``{"order": <id>}``.
 
-        ``quantity`` is required for most service types. Drip-feed orders use
-        ``runs`` + ``interval``; custom-comment services use ``comments``.
-        Any other service-specific field (e.g. ``username``, ``keywords``)
-        can be passed via ``**extra``.
+        The required fields depend on the service ``type`` (see
+        https://nlosmm.com/api):
+
+        - **Default**: ``service``, ``link``, ``quantity``.
+        - **Drip-feed**: add ``runs`` and ``interval`` (minutes between runs).
+        - **Custom Comments**: pass ``comments`` separated by ``\\n``.
+        - **Poll**: pass ``answer_number``.
+        - **Subscriptions**: pass ``username``, ``min``, ``max``, ``posts``,
+          ``delay`` (0/5/10/15/30/60/90) and optionally ``expiry`` (``d/m/Y``).
+
+        Any other service-specific field can be supplied via ``**extra``.
         """
         return self._post(
             "add",
@@ -107,40 +132,44 @@ class SMMPanelClient:
             runs=runs,
             interval=interval,
             comments=comments,
+            answer_number=answer_number,
+            username=username,
+            min=min,
+            max=max,
+            posts=posts,
+            delay=delay,
+            expiry=expiry,
             **extra,
         )
 
     def status(self, order_id: int | str) -> dict:
-        """Return the status of a single order."""
+        """Return the status of a single order (action ``status``).
+
+        Response includes ``charge``, ``start_count``, ``status``,
+        ``remains`` and ``currency``.
+        """
         return self._post("status", order=order_id)
 
     def multi_status(self, order_ids: Iterable[int | str] | str) -> dict:
-        """Return the status of up to 100 orders in one call."""
+        """Return the status of multiple orders in one call (action ``status``).
+
+        Accepts an iterable of IDs or a comma-separated string and returns a
+        mapping of order id -> status object.
+        """
         return self._post("status", orders=_join_ids(order_ids))
 
     # -- refills -----------------------------------------------------------
 
-    def refill(self, order_id: int | str) -> Any:
-        """Request a refill for a single order."""
+    def refill(self, order_id: int | str) -> dict:
+        """Request a refill for an order (action ``refill``).
+
+        Returns ``{"refill": <id>}``. Only works on refillable services.
+        """
         return self._post("refill", order=order_id)
 
-    def multi_refill(self, order_ids: Iterable[int | str] | str) -> Any:
-        """Request refills for multiple orders at once."""
-        return self._post("refill", orders=_join_ids(order_ids))
-
-    def refill_status(self, refill_id: int | str) -> Any:
-        """Return the status of a single refill."""
+    def refill_status(self, refill_id: int | str) -> dict:
+        """Return the status of a refill (action ``refill_status``)."""
         return self._post("refill_status", refill=refill_id)
-
-    def multi_refill_status(self, refill_ids: Iterable[int | str] | str) -> Any:
-        """Return the status of multiple refills at once."""
-        return self._post("refill_status", refills=_join_ids(refill_ids))
-
-    # -- cancel ------------------------------------------------------------
-
-    def cancel(self, order_ids: Iterable[int | str] | str) -> Any:
-        """Request cancellation for one or more orders."""
-        return self._post("cancel", orders=_join_ids(order_ids))
 
 
 def _join_ids(ids: Iterable[int | str] | str) -> str:

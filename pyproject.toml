@@ -15,7 +15,8 @@ dependencies = ["requests>=2.25"]
 
 [project.urls]
 Homepage = "https://nlosmm.com"
-Repository = "https://github.com/USERNAME/smm-panel-api"
+Documentation = "https://nlosmm.com/api"
+Repository = "https://github.com/SpawneR99/-smm-panel-api"
 
 [tool.setuptools]
 packages = ["smm_panel"]
