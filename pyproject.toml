@@ -10,7 +10,17 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "NLO SMM" }]
-keywords = ["smm", "smm panel", "smm reselling panel", "social media marketing", "api client"]
+keywords = [
+    "smm",
+    "smm panel",
+    "smm reselling panel",
+    "best smm panel for resellers",
+    "cheapest smm panel",
+    "smm panel api",
+    "child panel",
+    "social media marketing",
+    "api client",
+]
 dependencies = ["requests>=2.25"]
 
 [project.urls]

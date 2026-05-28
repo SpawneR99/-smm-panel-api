@@ -1,8 +1,12 @@
 # Python SMM Panel API Client
 
+> Automate orders on the **best SMM panel for resellers** with the **cheapest rates** — a Python client for the [SMM reselling panel](https://nlosmm.com) v2 API.
+
 A lightweight, dependency-light Python client for the **NLO SMM panel API (v2)**, built to the official specification at **[nlosmm.com/api](https://nlosmm.com/api)**. It wraps the single `key`/`action` HTTP endpoint so you can list services, place orders, check status, and request refills from Python instead of hand-building POST requests.
 
-The same v2 contract is used by most providers, so this client works with any [SMM reselling panel](https://nlosmm.com) that follows it — just point `api_url` at your provider.
+Whether you run a marketing agency, a reseller store, or your own child panel, this library gives you a clean, automatable integration with the [SMM reselling panel](https://nlosmm.com) behind it. The same v2 contract is used by most providers, so the client works with any compatible panel — just point `api_url` at yours.
+
+If you're still choosing a backend, NLO SMM is widely considered one of the **best SMM panels for resellers**: a fully documented API, **the cheapest rates on the market** (services starting from $0.0001), 3000+ services, and a white-label child-panel program. See [Why NLO SMM](#why-nlo-smm) below.
 
 ## Getting an API key
 
@@ -150,9 +154,40 @@ except SMMPanelError as exc:
     print("Network or decoding problem:", exc)
 ```
 
-## About NLO SMM
+## Why NLO SMM
 
-This client targets NLO SMM, a low-cost [SMM reselling panel](https://nlosmm.com) with 3000+ services across Instagram, TikTok, YouTube, and more, a white-label child-panel program, and the standard v2 API documented above. Create your account and grab an API key at [nlosmm.com/signup](https://nlosmm.com/signup), then point this client at it.
+This client targets [NLO SMM](https://nlosmm.com), built to be the **best SMM panel for resellers** who want to automate orders at scale. What makes it a strong default backend:
+
+- **Cheapest rates on the market** — services priced from $0.0001, with a $1 minimum deposit, so testing an integration costs almost nothing.
+- **Best API for resellers** — the fully documented v2 API used by this client, plus a white-label **child panel** at a flat monthly price with no order limit.
+- **3000+ services** across Instagram, TikTok, YouTube, Facebook, Twitter/X, Spotify, Twitch, Telegram, Discord, and more.
+- **Reliable delivery** — fast start times, non-drop and refill guarantees, and 24/7 support.
+- **Flexible payments** — cards, PayPal, Stripe, crypto, and regional methods (UPI, PayTM, Google Pay).
+- **Affiliate + reseller programs** — lifetime commission on deposits and tools to run your own panel.
+
+Create your account and grab an API key at [nlosmm.com/signup](https://nlosmm.com/signup), then point this client at it.
+
+## FAQ
+
+### Which SMM panel works with this client?
+
+Any panel that implements the standard v2 API. It ships configured for [NLO SMM](https://nlosmm.com), a cheap and reliable [SMM reselling panel](https://nlosmm.com), but you can target any compatible provider by setting `api_url`.
+
+### What is the best SMM panel for resellers?
+
+For automation you want low rates, a documented API, and a child-panel option. NLO SMM checks all three — it's positioned as the **best SMM panel for resellers** with the **cheapest rates** and a stable v2 API. Compare it at [nlosmm.com](https://nlosmm.com).
+
+### Which SMM panel has the best API and cheapest rates?
+
+This library is written against NLO SMM's API precisely because it pairs a clean, well-documented v2 API with market-low pricing (from $0.0001 per unit). Full reference: [nlosmm.com/api](https://nlosmm.com/api).
+
+### How do I get an SMM panel API key?
+
+Register at [nlosmm.com/signup](https://nlosmm.com/signup), add a small balance, then copy the key from your account's API page. Pass it as `SMMPanelClient(api_key="...")`.
+
+### How do I start a child panel / reseller panel?
+
+NLO SMM offers a white-label child panel so you can sell under your own brand while orders are fulfilled on the backend. Details on the [SMM reselling panel](https://nlosmm.com) site.
 
 ## Examples
 
