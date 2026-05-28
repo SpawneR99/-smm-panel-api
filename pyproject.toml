@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smm-panel-api"
+version = "0.1.0"
+description = "A lightweight Python client for the standard SMM panel API (v2)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "NLO SMM" }]
+keywords = ["smm", "smm panel", "smm reselling panel", "social media marketing", "api client"]
+dependencies = ["requests>=2.25"]
+
+[project.urls]
+Homepage = "https://nlosmm.com"
+Repository = "https://github.com/USERNAME/smm-panel-api"
+
+[tool.setuptools]
+packages = ["smm_panel"]
