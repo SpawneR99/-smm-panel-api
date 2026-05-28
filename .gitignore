@@ -24,3 +24,6 @@ Thumbs.db
 
 # Local secrets
 .env
+
+# Local tooling state
+.claude/
